@@ -1,0 +1,7 @@
+jupyter==1.0.0
+jupyterlab==3.5.0
+matplotlib==3.6.2
+git+http://github.com/nilearn/nilearn@ffc0489b19b01b3231862846fc15ef72cfdbd249
+numpy==1.23.5
+pandas==1.5.2
+scipy==1.9.3
