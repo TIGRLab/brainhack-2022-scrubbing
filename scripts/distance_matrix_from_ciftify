@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Ciftify Directory
+CIFTIFY_DIR=$1
+SUBJECTNAME=$2
+PARCELLATION=$3
+
+# Full path to output file
+OUTPUT_FILE=$4
+
+# Working directory to store temporary files
+WORKDIR=${5:-/tmp}
+
+
+echo "Working on ${SUBJECTNAME}"
+echo "Using parcellation: ${PARCELLATION}"
+echo "Result will be output into: ${OUTPUT_FILE}"
+
+subject_ciftify=${CIFTIFY_DIR}/${SUBJECTNAME}
+
+left_surf=${subject_ciftify}/MNINonLinear/fsaverage_LR32k/${SUBJECTNAME}.L.midthickness.32k_fs_LR.surf.gii
+right_surf=${subject_ciftify}/MNINonLinear/fsaverage_LR32k/${SUBJECTNAME}.R.midthickness.32k_fs_LR.surf.gii
+
+
+left_areas=${WORKDIR}/${SUBJECTNAME}.L.midthickness_va.32k_fs_LR.shape.gii
+right_areas=${WORKDIR}/${SUBJECTNAME}.R.midthickness_va.32k_fs_LR.shape.gii
+
+echo "Creating left and right surface areas"
+wb_command -surface-vertex-areas \
+	${left_surf} ${left_areas}
+
+wb_command -surface-vertex-areas \
+	${right_surf} ${right_areas}
+
+echo "Calculating distance matrix..."
+distance_matrix.py ${PARCELLATION} \
+	--left-surf ${left_surf} --left-vertex-areas ${left_areas} \
+	--right-surf ${right_surf} --right-vertex-areas ${right_areas} \
+	--out-distances ${OUTPUT_FILE}
+
+echo "Done calculating distance matrix!"
+
+
