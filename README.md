@@ -22,7 +22,7 @@ We use data from SPINS and SPASD with three groups (SSD, ASD, and controls).
 We use the latest version of nilearn (with `pip install git+https://github.com/nilearn/nilearn.git`) with the new function `nilearn.signal.clean` to 
 perform scrubbing and cleaning.
 
-The visualization for QC will be done with R.
+The visualization for QC will be done with R. See [tutorial for plotting the figure for QC](https://github.com/TIGRLab/brainhack-2022-scrubbing/blob/main/notebooks/Testing-Visualization.md).
 
 ## Before BrainHack
 
@@ -39,7 +39,7 @@ The visualization for QC will be done with R.
 > The data quality gained from scrubbing vs. the amount of data/people we lose according to the threshold
 
 2. Decision
-    1. Visually QC the plots (see [tutorial for plotting the figure for QC](https://github.com/TIGRLab/brainhack-2022-scrubbing/blob/main/notebooks/Testing-Visualization.md))
+    1. Visually QC the plots
     2. Documentation
 
 3. Parameters to test
