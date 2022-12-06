@@ -48,13 +48,11 @@ The visualization for QC will be done with R.
 | -------- | -------- | -------- |
 | 0.5     | 5     | Default; SPINS & SPASD     |
 | 0.2     | 5     | SPINS & SPASD     |
-| 0     | 5     | SPINS & SPASD     |
 | 0.5     | 10     | SPINS & SPASD     |
 | 0.2     | 10     | SPINS & SPASD     |
-| 0     | 10     | SPINS & SPASD     |
 | 0.5     | 3     | SPINS & SPASD     |
 | 0.2     | 3     | SPINS & SPASD     |
-| 0     | 3    | SPINS & SPASD     |
+| 0     | -    | SPINS & SPASD     |
 
 * Optional: add a feature to scrub the TRs after the motion spike
 
