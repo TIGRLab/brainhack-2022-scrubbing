@@ -59,9 +59,13 @@ The visualization for QC will be done with R.
 * Optional: add a feature to scrub the TRs after the motion spike
 
 ## References:
+
 **Power's Paper**: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3849338/
+
 **Lindquist Paper**: https://onlinelibrary.wiley.com/doi/epdf/10.1002/hbm.24528
+
 **Benchmark Paper**:
 https://www.sciencedirect.com/science/article/pii/S1053811917302288
+
 **PR w/Nilearn Code**: https://github.com/nilearn/nilearn/pull/3385
 
