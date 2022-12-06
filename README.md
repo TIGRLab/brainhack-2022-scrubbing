@@ -46,15 +46,13 @@ The visualization for QC will be done with R.
 
 | FD_threshold (mm) | scrubs (TR) | Note |
 | -------- | -------- | -------- |
-| 0.5     | 5     | Default; SPINS & SPASD     |
-| 0.2     | 5     | SPINS & SPASD     |
-| 0     | 5     | SPINS & SPASD     |
-| 0.5     | 10     | SPINS & SPASD     |
-| 0.2     | 10     | SPINS & SPASD     |
-| 0     | 10     | SPINS & SPASD     |
-| 0.5     | 3     | SPINS & SPASD     |
-| 0.2     | 3     | SPINS & SPASD     |
-| 0     | 3    | SPINS & SPASD     |
+| 0.5     | 5     | Default; SPINS & SPASD (by groups)    |
+| 0.2     | 5     | SPINS & SPASD (by groups)    |
+| 0.5     | 10     | SPINS & SPASD (by groups)    |
+| 0.2     | 10     | SPINS & SPASD (by groups)    |
+| 0.5     | 3     | SPINS & SPASD (by groups)    |
+| 0.2     | 3     | SPINS & SPASD  (by groups)   |
+| 0     | -    | SPINS & SPASD (by groups)    |
 
 * Optional: add a feature to scrub the TRs after the motion spike
 
