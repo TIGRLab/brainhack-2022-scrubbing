@@ -1,7 +1,7 @@
 ---
 title: "Testing Visualization"
 author: Ju-Chi Yu
-Date: Dec-6-2022
+date: 2022-12-06
 output: github_document
 ---
 
@@ -11,20 +11,30 @@ library(ggplot2)
 library(tidyverse)
 ```
 
-## Visualzing the correlation between euclidean distance and activation to QC for motion
+### Visualzing the correlation between euclidean distance and activation to QC for motion
 
-### Fake data
+#### Fake data
 
 ```{r}
 set.seed(2022)
-timeseries <- matrix(rnorm(1000), nrow = 100)
+timeseries <- matrix(rnorm(10000), nrow = 100)
 FC_matrix <- cor(timeseries)
 
-distance <- diag(0, 10)
-distance[lower.tri(distance)] <- distance[upper.tri(distance)] <- abs(rnorm(45, 1, 1))
+dim.mat <- dim(FC_matrix)[1]
+distance <- diag(0, dim.mat)
+distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
+distance  = distance + t(distance)
+
+
 ```
 
-### scatter plot with trend
+```{r, echo = FALSE, fig.show='hold', out.width='50%'}
+heatmap(FC_matrix, Rowv = NA, Colv = NA, main = "FC_matrix", xlab = "ROIs", ylab = "ROIs")
+heatmap(distance, Rowv = NA, Colv = NA, main = "distance", xlab = "ROIs", ylab = "ROIs")
+```
+
+
+#### Scatter plot with trend
 
 ```{r}
 data2plot <- data.frame(FC_vec = FC_matrix[upper.tri(FC_matrix)],
@@ -35,6 +45,7 @@ data2plot %>%
   geom_point() +
   geom_smooth(se = FALSE, color = "red", lwd = 2) +
   geom_hline(yintercept = 0) +
+  ggtitle(paste0("r = ", round(cor(data2plot$Dist_vec, data2plot$FC_vec), 2))) +
   xlab("Distance") +
   ylab("FC") +
   theme(panel.grid = element_blank(),
@@ -44,4 +55,35 @@ data2plot %>%
 
 ```
 
+#### With the function
 
+The `plot_DistFC` can be used to plot the correlation plot between functional connectivity (FC) and distance (the diagonals of both matrices are not included). The aim of this figure is to help check if there is a bump when their euclidean distance in the 3D space is small. If so, it means that there is a motion effect in the functional connectivity data. If the motion effect is removed by scrubbing, you should see a line that is almost flat.
+
+##### How to use `plot_DistFC`
+
+`plot_DistFC` takes two arguments:
+
++ `FC_matrix`: A symmetric matrix (ROI x ROI) with functional connectivity.
+
++ `Dist_matrix`: A symmetric distance matrix (ROI x ROI) that describes the distances between any two ROIs.
+
+There are also other arguments that you can specify:
+
++ `color.line`: The color for the estimated smoothed line. Default: red.
+
++ `lwd.line`: The width of the line. Default: 2.
+
++ `title`: The title of the figure. Default: NULL. When NULL, only the coefficient of correlation will be printed.
+
+_Note: If you want to remove the correlation in the title, you can add `theme(title = element_blank())` to your ggplot._
+
+```{r}
+## This is how you source the function
+source("../scripts/plot_DistFC.R")
+
+## and plot the results
+plot_DistFC(FC_matrix = FC_matrix,
+            Dist_matrix = distance, 
+            color.line = "red", lwd.line = 2,
+            title = "FD threshold = w, scrubs = v")
+```
