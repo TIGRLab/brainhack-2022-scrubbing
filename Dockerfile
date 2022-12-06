@@ -9,7 +9,7 @@ COPY requirements.txt /requirements.txt
 RUN pip install --upgrade pip \
 	&& pip install -r /requirements.txt
 
-ENV PATH="${PATH}"/brainhack-project-2022/scripts
 COPY . /brainhack-project-2022
+ENV PATH="${PATH}:/brainhack-project-2022/scripts"
 
 ENTRYPOINT ["/bin/bash"]
