@@ -39,7 +39,7 @@ The visualization for QC will be done with R.
 > The data quality gained from scrubbing vs. the amount of data/people we lose according to the threshold
 
 2. Decision
-    1. Visually QC the plots (see [tutorial for the function](https://github.com/TIGRLab/brainhack-2022-scrubbing/blob/main/notebooks/Testing-Visualization.md))
+    1. Visually QC the plots (see [tutorial for plotting the figure for QC](https://github.com/TIGRLab/brainhack-2022-scrubbing/blob/main/notebooks/Testing-Visualization.md))
     2. Documentation
 
 3. Parameters to test
