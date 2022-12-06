@@ -1,0 +1,47 @@
+---
+title: "Testing Visualization"
+author: Ju-Chi Yu
+Date: Dec-6-2022
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+```
+
+## Visualzing the correlation between euclidean distance and activation to QC for motion
+
+### Fake data
+
+```{r}
+set.seed(2022)
+timeseries <- matrix(rnorm(1000), nrow = 100)
+FC_matrix <- cor(timeseries)
+
+distance <- diag(0, 10)
+distance[lower.tri(distance)] <- distance[upper.tri(distance)] <- abs(rnorm(45, 1, 1))
+```
+
+### scatter plot with trend
+
+```{r}
+data2plot <- data.frame(FC_vec = FC_matrix[upper.tri(FC_matrix)],
+                        Dist_vec = distance[upper.tri(distance)])
+
+data2plot %>%
+  ggplot(aes(x = Dist_vec, y = FC_vec)) +
+  geom_point() +
+  geom_smooth(se = FALSE, color = "red", lwd = 2) +
+  geom_hline(yintercept = 0) +
+  xlab("Distance") +
+  ylab("FC") +
+  theme(panel.grid = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
+
+```
+
+
