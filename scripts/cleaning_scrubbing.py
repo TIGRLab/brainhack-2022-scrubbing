@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Perform basic confound cleaning followed by Powers (2014) style scrubbing
 '''
