@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Clean surface-based subject data for a given task and parcellate output
+SUBJECT_NAME=$1
+FMRIPREP_DIR=$2
+CIFTIFY_DIR=$3
+TASKNAME=$4
+CLEAN_CONFIG=$5
+PARCELLATION=$6
+WORKDIR=$7
+OUTPUT_DIR=$8
+
+# Set as "true" or "false"
+USE_FIXED_REGRESSORS=${9:-false}
+
+# SMOOTH FWHM
+SMOOTHING_FWHM=${10:-false}
+
+# Shift down so that CLEAN_ARGS captures rest
+shift 10
+
+# Required arguments into Ju-Chi's Script
+# --fd_threshold, --scrub, --t_r
+OPTIONAL_CLEAN_ARGS=$@
+
+subject_fmriprep_dir="${FMRIPREP_DIR}/${SUBJECT_NAME}"
+subject_ciftify_dir="${CIFTIFY_DIR}/${SUBJECT_NAME}"
+
+task_directories="${subject_ciftify_dir}/MNINonLinear/Results/*${TASKNAME}*"
+subject_fsaverage="${subject_ciftify_dir}/MNINonLinear/fsaverage_LR32k/"
+
+left_surface=${subject_fsaverage}/${SUBJECT_NAME}.L.midthickness.32k_fs_LR.surf.gii
+right_surface=${subject_fsaverage}/${SUBJECT_NAME}.R.midthickness.32k_fs_LR.surf.gii
+
+for task_dir in ${task_directories}; do
+
+	taskrun=$(basename ${task_dir})
+	echo "Working on ${taskrun}"
+
+	ses=$(echo $taskrun | sed -r 's/.*(ses-[A-Za-z0-9]+).*/\1/')
+	task=$(echo $taskrun | sed -r 's/.*(task-[A-Za-z0-9]+).*/\1/')
+	run=$(echo $taskrun | sed -r 's/.*(run-[A-Za-z0-9]+).*/\1/')
+
+	dtseries="${task_dir}/${taskrun}_Atlas_s0.dtseries.nii"
+	confounds_base="${FMRIPREP_DIR}/${SUBJECT_NAME}/${ses}/func/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-confounds"
+
+	if [[ "$USE_FIXED_REGRESSORS" == true ]]; then
+		echo "Using fixedregressors.tsv!"
+		confounds_file="${confounds_base}_fixedregressors.tsv"
+	else
+		confounds_file="${confounds_base}_regressors.tsv"
+	fi
+
+	smooth_dtseries=${WORKDIR}/smooth.dtseries.nii
+	if [[ ! -f $smooth_dtseries ]]; then
+		if [[ "$SMOOTHING_FWHM" == false ]]; then
+			echo "No smoothing is being applied"
+			ln -s $dtseries ${smooth_dtseries}
+		else
+			echo "Smoothing using FWHM ${SMOOTHING_FWHM}"
+			fwhm2sigma="${SMOOTHING_FWHM} / (2 * sqrt(2 * l(2)))"
+			sigma=$(bc -l <<< $fwhm2sigma)
+			echo "Calculated sigma is ${sigma}"
+
+
+			wb_command -cifti-smoothing \
+				${dtseries} \
+				${sigma} ${sigma} COLUMN \
+				${smooth_dtseries} \
+				-left-surface ${left_surface} \
+				-right-surface ${right_surface}
+		fi
+	else
+		echo "Skipping smoothing step as ${smooth_dtseries} exists!"
+	fi
+
+	output_file=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-connectivity.tsv
+
+	# Transform Cifti File into volume space
+	input_nii=${WORKDIR}/input.nii.gz
+	wb_command -cifti-convert -to-nifti ${smooth_dtseries} ${input_nii}
+
+	cleaned_nii=${WORKDIR}/cleaned.nii.gz
+	if [[ ! -f ${cleaned_nii} ]]; then
+	/scripts/cleaning_scrubbing.py \
+		${input_nii} \
+		${confounds_file} \
+		${CLEAN_CONFIG} \
+		${OPTIONAL_CLEAN_ARGS[@]} \
+		${cleaned_nii}
+	else
+		echo "Found existing ${cleaned_nii}!"
+	fi
+
+	cleaned_dtseries=${WORKDIR}/cleaned.dtseries.nii
+	wb_command -cifti-convert -from-nifti \
+		${cleaned_nii} \
+		${smooth_dtseries} \
+		${cleaned_dtseries} \
+		-reset-timepoints 2 0
+
+
+	parcellated=${WORKDIR}/cleaned.ptseries.nii
+	wb_command -cifti-parcellate \
+		${cleaned_dtseries} \
+		${PARCELLATION} \
+		COLUMN \
+		${parcellated} \
+		-spatial-weights \
+			-left-area-surf ${left_surface} \
+			-right-area-surf ${right_surface}
+
+	# Calculate connectivity
+	connectivity=${WORKDIR}/connectivity.pconn.nii
+	wb_command -cifti-correlation \
+		${parcellated} \
+		${connectivity}
+		
+
+	wb_command -cifti-convert \
+		-to-text ${connectivity} ${output_file}
+
+	# Move cleaned data into output
+	output_cleaned=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-cleaned_bold.dtseries.nii
+	cp -r ${cleaned_dtseries} ${output_cleaned}
+done
+
+
+
+
+
+
+
