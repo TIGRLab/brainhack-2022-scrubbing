@@ -56,6 +56,104 @@ The visualization for QC will be done with R. See [tutorial for plotting the fig
 
 * Optional: add a feature to scrub the TRs after the motion spike
 
+## Setup Guide
+
+If you already have a `.simg` file, feel free to skip this section
+
+### Manual Environment Setup
+
+It is heavily recommended that you use a Python virtual environment when installing the requirements for this project locally. 
+
+```
+<enter your python virtualenv>
+apt-get install connectome-workbench bc
+pip install -r requirements.txt
+```
+
+### Docker Image Creation
+
+To create a Docker image of the development environment run the following command:
+
+```
+cd /path/to/repository
+docker build . -t brainhack-scrubbing:0.0.0 --rm
+```
+
+### Create Singularity Image
+
+A singularity image can be created using the `docker2singularity` tool. Note this can only be done if you built the Docker image (previous section) first. The following command can be used:
+
+```
+cd <path_to_repository>
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v $PWD:/output --privileged -t --rm quay.io/singularity/docker2singularity:v2.6 brainhack-scrubbing:0.0.0
+```
+
+## Usage Guide
+
+### Running the full pipeline
+
+The main run script to generate a parcellated distance and connectivity matrix is `scripts/run_container_on_subject.sh`. The usage is as follows:
+
+```
+scripts/run_container_on_subject.sh \
+	SUBJECT_NAME FMRIPREP_DIR CIFTIFY_DIR \
+	TASK_NAME CLEAN_CONFIG_JSON PARCELLATION_DLABEL \
+	OUTPUT_DIR WORK_DIRECTORY SINGULARITY_IMAGE \
+	FD_THRESHOLD SCRUBBING_WINDOW REPETITION_TIME \
+	[USE_FIXED_REGRESSORS (true/false)] \
+	[SMOOTHING_FWHM (float value)]
+```
+
+All arguments with the exception of the last 2 must be specified to run the full pipeline.
+
+If you'd like to run the pipeline on multiple participants (i.e a full dataset), then take a look at the template in `scripts/submit_to_slurm.sh`. The arguments are identical to `run_container_on_subject` but instead of specifying `SUBJECT_NAME` you give it a `SUBJECT_LIST` filepath. The file specified by `SUBJECT_LIST` must contain 1 subject per line and must correspond to an existing subject in fMRIPrep/Ciftify.
+
+```
+SUBJECT_LIST=/path/to/subjectlist.txt
+num_subjects=$(wc -l $SUBJECT_LIST | awk '{print $1}'
+
+sbatch --array 0-$num_subjects \
+	[--output PATH] \
+	[--error PATH] \
+	scripts/run_container_on_subject.sh \
+	SUBJECT_LIST FMRIPREP_DIR CIFTIFY_DIR \
+	TASK_NAME CLEAN_CONFIG_JSON PARCELLATION_DLABEL \
+	OUTPUT_DIR WORK_DIRECTORY SINGULARITY_IMAGE \
+	FD_THRESHOLD SCRUBBING_WINDOW REPETITION_TIME \
+	[USE_FIXED_REGRESSORS (true/false)] \
+	[SMOOTHING_FWHM (float value)]
+```
+
+You may need to modify `submit_to_slurm` to suit your HPC cluster environment
+
+### Singularity Jupyter Notebook
+
+Singularity or Docker can be used to spin up a development environment containing all the software needed for either Jupyter Notebook prototyping or development.
+
+```
+XDG_RUNTME_DIR= singularity exec \
+	-B <directory_to_mount>:/<mounted_directory_name> \
+	-B <another_directory>:/<another_mount_point> \
+	...
+	path/to/singularity/image.simg \
+	jupyter notebook --port <PORT> --no-browser
+```
+
+Once Jupyter has spun up you can navigate to the URL provided in the terminal.
+
+### Interactive Development Environment
+
+If you want to interactively run commands within the container environment you may use the `singularity shell` command:
+
+```
+singularity shell \
+	-B <directory_to_mount>:/<mounted_directory_name> \
+	-B <another_directory>:/<another_mount_point> \
+	...
+	path/to/singularity/image.simg
+```
+This shell environment will contain all the software required to run any step of the pipeline.
+
 ## References:
 
 **Power's Paper**: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3849338/
