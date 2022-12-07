@@ -33,11 +33,9 @@ wb_command -surface-vertex-areas \
 	${right_surf} ${right_areas}
 
 echo "Calculating distance matrix..."
-distance_matrix.py ${PARCELLATION} \
+/scripts/distance_matrix.py ${PARCELLATION} \
 	--left-surf ${left_surf} --left-vertex-areas ${left_areas} \
 	--right-surf ${right_surf} --right-vertex-areas ${right_areas} \
 	--out-distances ${OUTPUT_FILE}
 
 echo "Done calculating distance matrix!"
-
-
