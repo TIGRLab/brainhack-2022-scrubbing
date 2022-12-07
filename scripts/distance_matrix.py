@@ -158,11 +158,11 @@ def main():
 
     # Return this
     if args.out_centroids:
-        np.save(args.out_centroids, output_array)
+        np.savetxt(args.out_centroids, output_array)
 
     if args.out_distances:
         distance_matrix = cdist(output_array, output_array, 'euclidean')
-        np.save(args.out_distances, distance_matrix)
+        np.savetxt(args.out_distances, distance_matrix)
 
 
 if __name__ == '__main__':
