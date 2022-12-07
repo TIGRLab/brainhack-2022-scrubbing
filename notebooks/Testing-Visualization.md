@@ -8,14 +8,28 @@ Ju-Chi Yu
 #### Fake data
 
 ``` r
+Dist_matrix <- list()
+FC_matrix <- list()
+
+## sub 1
 set.seed(2022)
 timeseries <- matrix(rnorm(10000), nrow = 100)
-FC_matrix <- cor(timeseries)
+FC_matrix[['sub1']] <- cor(timeseries)
 
-dim.mat <- dim(FC_matrix)[1]
+dim.mat <- dim(FC_matrix[['sub1']])[1]
 distance <- diag(0, dim.mat)
 distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
-distance  = distance + t(distance)
+Dist_matrix[['sub1']]  = distance + t(distance)
+
+## sub 2
+set.seed(2023)
+timeseries <- matrix(rnorm(10000), nrow = 100)
+FC_matrix[['sub2']] <- cor(timeseries)
+
+dim.mat <- dim(FC_matrix[['sub2']])[1]
+distance <- diag(0, dim.mat)
+distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
+Dist_matrix[['sub2']]  = distance + t(distance)
 ```
 
 <img src="Testing-Visualization_files/figure-gfm/unnamed-chunk-2-1.png" width="50%" /><img src="Testing-Visualization_files/figure-gfm/unnamed-chunk-2-2.png" width="50%" />
@@ -23,8 +37,10 @@ distance  = distance + t(distance)
 #### Scatter plot with trend
 
 ``` r
-data2plot <- data.frame(FC_vec = FC_matrix[upper.tri(FC_matrix)],
-                        Dist_vec = distance[upper.tri(distance)])
+FClist.in.vec <- lapply(FC_matrix, as.vector)
+Distlist.in.vec <- lapply(Dist_matrix, as.vector)
+data2plot <- data.frame(FC_vec = unlist(FClist.in.vec),
+                        Dist_vec = unlist(Distlist.in.vec))
 
 data2plot %>%
   ggplot(aes(x = Dist_vec, y = FC_vec)) +
@@ -58,10 +74,10 @@ should see a line that is almost flat.
 
 `plot_DistFC` takes two arguments:
 
--   `FC_matrix`: A symmetric matrix (ROI x ROI) with functional
+-   `FC_list`: A list of symmetric matrix (ROI x ROI) with functional
     connectivity.
 
--   `Dist_matrix`: A symmetric distance matrix (ROI x ROI) that
+-   `Dist_list`: A list of symmetric distance matrix (ROI x ROI) that
     describes the distances between any two ROIs.
 
 There are also other arguments that you can specify:
@@ -82,8 +98,8 @@ There are also other arguments that you can specify:
 source("../scripts/plot_DistFC.R")
 
 ## and plot the results
-plot_DistFC(FC_matrix = FC_matrix,
-            Dist_matrix = distance, 
+plot_DistFC(FC_list = FC_matrix,
+            Dist_list = Dist_matrix, 
             color.line = "red", lwd.line = 2,
             title = "FD threshold = w, scrubs = v")
 ```
