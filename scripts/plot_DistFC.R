@@ -1,33 +1,33 @@
-# Function to plot the distance x functional connectivity scatter plot 
-# 
-# @param FC_list A list of symmetric matrix (ROI x ROI) with functional connectivity.
-# @param Dist_list A list of symmetric distance matrix (ROI x ROI) that describes the distances between any two ROIs.
-# @param color.line The color for the estimated smoothed line. Default: red.
-# @param lwd.line The width of the line. Default: 2.
-# @param title The title of the figure. Default: NULL.
-#
-# @return A scatter plot with distance on the x axis and functional connectivity on the y axis.
-# @export
-#
-# @examples
-# ## create fake data
-# set.seed(2022)
-# timeseries <- matrix(rnorm(10000), nrow = 100)
-# FC_list <- cor(timeseries)
-# 
-# dim.mat <- dim(FC_list)[1]
-# distance <- diag(0, dim.mat)
-# distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
-# distance  = distance + t(distance)
-# 
-# ## plot the results
-# plot_DistFC(FC_list = FC_list,
-#             Dist_list = distance, 
-#             color.line = "red", lwd.line = 2,
-#             title = "FD threshold = w, scrubs = v")
+#' Function to plot the distance x functional connectivity scatter plot 
+#' 
+#' @param FC_list A list of symmetric matrix (ROI x ROI) with functional connectivity.
+#' @param Dist_list A list of symmetric distance matrix (ROI x ROI) that describes the distances between any two ROIs.
+#' @param color.line The color for the estimated smoothed line. Default: red.
+#' @param lwd.line The width of the line. Default: 2.
+#' @param title The title of the figure. Default: NULL.
+#'
+#' @return A scatter plot with distance on the x axis and functional connectivity on the y axis.
+#' @export
+#'
+#' @examples
+#' ## create fake data
+#' set.seed(2022)
+#' timeseries <- matrix(rnorm(10000), nrow = 100)
+#' FC_list <- cor(timeseries)
+#' 
+#' dim.mat <- dim(FC_list)[1]
+#' distance <- diag(0, dim.mat)
+#' distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
+#' distance  = distance + t(distance)
+#' 
+#' ## plot the results
+#' plot_DistFC(FC_list = FC_list,
+#'             Dist_list = distance, 
+#'             color.line = "red", lwd.line = 2,
+#'             title = "FD threshold = w, scrubs = v")
 plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, title = NULL){
   require(ggplot2)
-
+  
   ## Check dimension
   dim.FC <- lapply(FC_list, dim)
   dim.Dist <- lapply(Dist_list, dim)
@@ -38,14 +38,16 @@ plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, ti
   
   ### If the inputs are square matrices
   if (sum(dim2check.FC) > 0 | sum(dim2check.Dist) > 0){
-    if (sum(dim2check.FC) > 0)
+    if (sum(dim2check.FC) > 0){
       dim2check.FC.show <- dim2check.FC[dim2check.FC == TRUE]
       message("FC_list needs to have square matrices. Please check the FC matrix below.")
       print(dim2check.FC.show)
-    if (sum(dim2check.Dist) > 0)
+    }
+    if (sum(dim2check.Dist) > 0){
       dim2check.Dist.show <- dim2check.Dist[dim2check.Dist == TRUE]
       message("Dist_list needs to be a square matrix. Please check the Dist matrices listed below.")
       print(dim2check.Dist.show)
+    }
     stop("Error: Dimension mismatch.")
   }
   
