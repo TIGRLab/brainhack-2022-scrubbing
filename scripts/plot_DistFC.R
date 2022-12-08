@@ -63,14 +63,20 @@ plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, ti
   }
   
   ### If the matrices are symmetric
-  if (sum(lapply(FC_list, isSymmetric.matrix) == 0) > 0)
+  if (sum(lapply(FC_list, is_symmetric) == 0) > 0)
     warning("Some matrices in your FC_list are not symmetric. The upper triangle was used to plot.")
-  if (sum(lapply(Dist_list, isSymmetric.matrix) == 0) > 0)
+  if (sum(lapply(Dist_list, is_symmetric) == 0) > 0)
     warning("Some matrices in your Dist_list are not symmetric. The upper triangle was used to plot.")
   
   ## Organize data
-  FClist.in.vec <- lapply(FC_list, as.vector)
-  Distlist.in.vec <- lapply(Dist_list, as.vector)
+  if (is.list(FC_list) | is.list(Dist_list)){
+    FClist.in.vec <- lapply(FC_list, function(x) x[upper.tri(x)])
+    Distlist.in.vec <- lapply(Dist_list, function(x) x[upper.tri(x)])
+  }else{
+    FClist.in.vec <- FC_list[upper.tri(FC_list)]
+    Distlist.in.vec <- Dist_list[upper.tri(Dist_list)]
+  }
+  
   data2plot <- data.frame(FC_vec = unlist(FClist.in.vec),
                           Dist_vec = unlist(Distlist.in.vec))
   ## plot
@@ -86,4 +92,14 @@ plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, ti
           panel.grid.major = element_blank(),
           panel.background = element_blank(),
           axis.line = element_line(colour = "black"))
+}
+
+is_symmetric <- function(x){
+  up.x <- x[upper.tri(x)]
+  lw.x <- t(x)[upper.tri(t(x))]
+  if (sum(up.x != lw.x) > 0){
+    return(FALSE)
+  }else{
+    return(TRUE)
+  }
 }
