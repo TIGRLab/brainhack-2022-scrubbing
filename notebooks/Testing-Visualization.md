@@ -8,8 +8,8 @@ Ju-Chi Yu
 #### Fake data
 
 ``` r
-Dist_matrix <- list()
 FC_matrix <- list()
+Dist_matrix <- list()
 
 ## sub 1
 set.seed(2022)
@@ -30,55 +30,50 @@ dim.mat <- dim(FC_matrix[['sub2']])[1]
 distance <- diag(0, dim.mat)
 distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
 Dist_matrix[['sub2']]  = distance + t(distance)
+
+## sub 3
+set.seed(2024)
+timeseries <- matrix(rnorm(10000), nrow = 100)
+FC_matrix[['sub3']] <- cor(timeseries)
+
+dim.mat <- dim(FC_matrix[['sub3']])[1]
+distance <- diag(0, dim.mat)
+distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
+Dist_matrix[['sub3']]  = distance + t(distance)
+
+## arrays
+FC_Array <- array(unlist(FC_matrix), dim = c(dim(FC_matrix[[1]]), 3))
+Dist_Array <- array(unlist(Dist_matrix), dim = c(dim(Dist_matrix[[1]]), 3))
+
+## face mean FD
+
+meanFD_vec <- rnorm(3)
 ```
 
 <img src="Testing-Visualization_files/figure-gfm/unnamed-chunk-2-1.png" width="50%" /><img src="Testing-Visualization_files/figure-gfm/unnamed-chunk-2-2.png" width="50%" />
 
-#### Scatter plot with trend
+#### FC-QC vs. correlation
 
-``` r
-FClist.in.vec <- lapply(FC_matrix, as.vector)
-Distlist.in.vec <- lapply(Dist_matrix, as.vector)
-data2plot <- data.frame(FC_vec = unlist(FClist.in.vec),
-                        Dist_vec = unlist(Distlist.in.vec))
+The `plot_DistFCQC` can be used to plot the scatter plot of distances
+(diagonals included) and the correlations between mean frame
+displacements (FDs; as QC measures) and functional connectivity (FC).
+The aim of this figure is to help check if there is a bump when their
+euclidean distance in the 3D space is small. If so, it means that there
+is a motion confound in the functional connectivity data. If the motion
+effect is removed by scrubbing, you should see a line that is almost
+flat.
 
-data2plot %>%
-  ggplot(aes(x = Dist_vec, y = FC_vec)) +
-  geom_point() +
-  geom_smooth(se = FALSE, color = "red", lwd = 2) +
-  geom_hline(yintercept = 0) +
-  ggtitle(paste0("r = ", round(cor(data2plot$Dist_vec, data2plot$FC_vec), 2))) +
-  xlab("Distance") +
-  ylab("FC") +
-  theme(panel.grid = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-```
+##### How to use `plot_DistFCQC`
 
-    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+`plot_DistFCQC` takes two arguments:
 
-![](Testing-Visualization_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+-   `FC_Array`: An array of symmetric matrices (ROI x ROI x subject)
+    with functional connectivity.
 
-#### With the function
+-   `Dist_Array`: An array of symmetric distance matrices (ROI x ROI x
+    subject) that describes the distances between any two ROIs.
 
-The `plot_DistFC` can be used to plot the correlation plot between
-functional connectivity (FC) and distance (the diagonals of both
-matrices are not included). The aim of this figure is to help check if
-there is a bump when their euclidean distance in the 3D space is small.
-If so, it means that there is a motion effect in the functional
-connectivity data. If the motion effect is removed by scrubbing, you
-should see a line that is almost flat.
-
-##### How to use `plot_DistFC`
-
-`plot_DistFC` takes two arguments:
-
--   `FC_list`: A list of symmetric matrix (ROI x ROI) with functional
-    connectivity.
-
--   `Dist_list`: A list of symmetric distance matrix (ROI x ROI) that
-    describes the distances between any two ROIs.
+-   `meanFD_vec`: A vector of mean FD.
 
 There are also other arguments that you can specify:
 
@@ -95,15 +90,22 @@ There are also other arguments that you can specify:
 
 ``` r
 ## This is how you source the function
-source("../scripts/plot_DistFC.R")
+source("../scripts/plot_DistFCQC.R")
 
 ## and plot the results
-plot_DistFC(FC_list = FC_matrix,
-            Dist_list = Dist_matrix, 
+plot_DistFCQC(FC_Array = FC_Array,
+            Dist_Array = Dist_Array, 
+            meanFD_vec = meanFD_vec,
             color.line = "red", lwd.line = 2,
             title = "FD threshold = w, scrubs = v")
 ```
 
+    ## Warning in cor(meanFD_vec, t(FC_upper)): the standard deviation is zero
+
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](Testing-Visualization_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+    ## Warning: Removed 100 rows containing non-finite values (stat_smooth).
+
+    ## Warning: Removed 100 rows containing missing values (geom_scattermore).
+
+![](Testing-Visualization_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
