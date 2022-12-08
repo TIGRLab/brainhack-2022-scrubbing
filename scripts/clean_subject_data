@@ -38,11 +38,11 @@ for task_dir in ${task_directories}; do
 	echo "Working on ${taskrun}"
 
 	ses=$(echo $taskrun | sed -r 's/.*(ses-[A-Za-z0-9]+).*/\1/')
-	task=$(echo $taskrun | sed -r 's/.*(task-[A-Za-z0-9]+).*/\1/')
-	run=$(echo $taskrun | sed -r 's/.*(run-[A-Za-z0-9]+).*/\1/')
+	task=$(echo $taskrun | sed -r 's/.*(_task-[A-Za-z0-9]+).*/\1/')
+	run=$(echo $taskrun | sed -r 's/.*(_run-[A-Za-z0-9]+)?.*/\1/')
 
 	dtseries="${task_dir}/${taskrun}_Atlas_s0.dtseries.nii"
-	confounds_base="${FMRIPREP_DIR}/${SUBJECT_NAME}/${ses}/func/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-confounds"
+	confounds_base="${FMRIPREP_DIR}/${SUBJECT_NAME}/${ses}/func/${SUBJECT_NAME}_${ses}${task}${run}_desc-confounds"
 
 	if [[ "$USE_FIXED_REGRESSORS" == true ]]; then
 		echo "Using fixedregressors.tsv!"
@@ -50,11 +50,12 @@ for task_dir in ${task_directories}; do
 	else
 		confounds_file="${confounds_base}_regressors.tsv"
 	fi
+	echo "Confounds file: $confounds_file"
 
 	smooth_dtseries=${WORKDIR}/smooth.dtseries.nii
 	if [[ ! -f $smooth_dtseries ]]; then
 		if [[ "$SMOOTHING_FWHM" == false ]]; then
-			echo "No smoothing is being applied"
+		echo "No smoothing is being applied"
 			ln -s $dtseries ${smooth_dtseries}
 		else
 			echo "Smoothing using FWHM ${SMOOTHING_FWHM}"
@@ -74,7 +75,7 @@ for task_dir in ${task_directories}; do
 		echo "Skipping smoothing step as ${smooth_dtseries} exists!"
 	fi
 
-	output_file=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-connectivity.tsv
+	output_file=${OUTPUT_DIR}/${SUBJECT_NAME}${ses}${task}${run}_desc-connectivity.tsv
 
 	# Transform Cifti File into volume space
 	input_nii=${WORKDIR}/input.nii.gz
@@ -121,7 +122,7 @@ for task_dir in ${task_directories}; do
 		-to-text ${connectivity} ${output_file}
 
 	# Move cleaned data into output
-	output_cleaned=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}_${task}_${run}_desc-cleaned_bold.dtseries.nii
+	output_cleaned=${OUTPUT_DIR}/${SUBJECT_NAME}${ses}${task}${run}_desc-cleaned_bold.dtseries.nii
 	cp -r ${cleaned_dtseries} ${output_cleaned}
 done
 

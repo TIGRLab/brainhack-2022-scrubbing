@@ -18,8 +18,8 @@ echo "Result will be output into: ${OUTPUT_FILE}"
 
 subject_ciftify=${CIFTIFY_DIR}/${SUBJECTNAME}
 
-left_surf=${subject_ciftify}/MNINonLinear/fsaverage_LR32k/${SUBJECTNAME}.L.midthickness.32k_fs_LR.surf.gii
-right_surf=${subject_ciftify}/MNINonLinear/fsaverage_LR32k/${SUBJECTNAME}.R.midthickness.32k_fs_LR.surf.gii
+left_surf=${subject_ciftify}/T1w/fsaverage_LR32k/${SUBJECTNAME}.L.midthickness.32k_fs_LR.surf.gii
+right_surf=${subject_ciftify}/T1w/fsaverage_LR32k/${SUBJECTNAME}.R.midthickness.32k_fs_LR.surf.gii
 
 
 left_areas=${WORKDIR}/${SUBJECTNAME}.L.midthickness_va.32k_fs_LR.shape.gii
