@@ -26,7 +26,7 @@
 #'             color.line = "red", lwd.line = 2,
 #'             title = "FD threshold = w, scrubs = v")
 plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, title = NULL){
-  require(ggplot2)
+  require(ggplot2, scattermore)
   
   ## Check dimension
   dim.FC <- lapply(FC_list, dim)
@@ -72,26 +72,31 @@ plot_DistFC <- function(FC_list, Dist_list, color.line = "red", lwd.line = 2, ti
   if (is.list(FC_list) | is.list(Dist_list)){
     FClist.in.vec <- lapply(FC_list, function(x) x[upper.tri(x)])
     Distlist.in.vec <- lapply(Dist_list, function(x) x[upper.tri(x)])
+    
+    data2plot <- data.frame(FC_vec = as.vector(do.call(rbind, FClist.in.vec)),
+                            Dist_vec = as.vector(do.call(rbind, Distlist.in.vec)))
   }else{
     FClist.in.vec <- FC_list[upper.tri(FC_list)]
     Distlist.in.vec <- Dist_list[upper.tri(Dist_list)]
+    
+    data2plot <- data.frame(FC_vec = as.vector(FClist.in.vec),
+                            Dist_vec = as.vector(Distlist.in.vec))
   }
   
-  data2plot <- data.frame(FC_vec = unlist(FClist.in.vec),
-                          Dist_vec = unlist(Distlist.in.vec))
+  
   ## plot
-  data2plot %>%
-    ggplot(aes(x = Dist_vec, y = FC_vec)) +
-    geom_point() +
-    geom_smooth(se = FALSE, color = color.line, size = lwd.line) +
-    geom_hline(yintercept = 0) +
-    ggtitle(paste0(title, "\nr = ", round(cor(data2plot$Dist_vec, data2plot$FC_vec), 2))) +
-    xlab("Distance") +
-    ylab("FC") +
-    theme(panel.grid = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.background = element_blank(),
-          axis.line = element_line(colour = "black"))
+  ## faster
+  print(ggplot(data2plot, aes(x=Dist_vec, y=FC_vec)) +
+          geom_scattermore()+
+          geom_smooth(se = FALSE, color = color.line, size = lwd.line) +
+          geom_hline(yintercept = 0) +
+          ggtitle(paste0(title, "\nr = ", round(cor(data2plot$Dist_vec, data2plot$FC_vec), 2))) +
+          xlab("Distance") +
+          ylab("FC") +
+          theme(panel.grid = element_blank(),
+                panel.grid.major = element_blank(),
+                panel.background = element_blank(),
+                axis.line = element_line(colour = "black")))
 }
 
 is_symmetric <- function(x){
