@@ -9,23 +9,6 @@
 #'
 #' @return A scatter plot with distance on the x axis and functional connectivity on the y axis.
 #' @export
-#'
-#' @examples
-#' ## create fake data
-#' set.seed(2022)
-#' timeseries <- matrix(rnorm(10000), nrow = 100)
-#' FC_list <- cor(timeseries)
-#' 
-#' dim.mat <- dim(FC_list)[1]
-#' distance <- diag(0, dim.mat)
-#' distance[upper.tri(distance)] <- abs(rnorm(dim.mat*(dim.mat-1)/2, 1, 1))
-#' distance  = distance + t(distance)
-#' 
-#' ## plot the results
-#' plot_DistFC(FC_list = FC_list,
-#'             Dist_list = distance, 
-#'             color.line = "red", lwd.line = 2,
-#'             title = "FD threshold = w, scrubs = v")
 plot_DistFCQC <- function(FC_Array, Dist_Array, meanFD_vec, color.line = "red", lwd.line = 2, title = NULL){
   require(ggplot2, scattermore)
   
@@ -61,8 +44,8 @@ plot_DistFCQC <- function(FC_Array, Dist_Array, meanFD_vec, color.line = "red", 
   
   ## Organize data
   ### Edges x subject
-  FC_upper <- apply(FC_Array, 3, function(x) x[upper.tri(x, diag = TRUE)])
-  Dist_upper <- apply(Dist_Array, 3, function(x) x[upper.tri(x, diag = TRUE)])
+  FC_upper <- apply(FC_Array, 3, function(x) x[upper.tri(x)])
+  Dist_upper <- apply(Dist_Array, 3, function(x) x[upper.tri(x)])
   
   ### data.frame
   data2plot <- data.frame(Dist_vec <- rowMeans(Dist_upper), ## Average Dist_upper for across subjects

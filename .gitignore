@@ -3,3 +3,4 @@ scripts/scrubbing_env/*
 .vscode
 .vscode/*
 .Rproj.user
+.Rhistory
