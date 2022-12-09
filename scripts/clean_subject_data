@@ -75,7 +75,7 @@ for task_dir in ${task_directories}; do
 		echo "Skipping smoothing step as ${smooth_dtseries} exists!"
 	fi
 
-	output_file=${OUTPUT_DIR}/${SUBJECT_NAME}${ses}${task}${run}_desc-connectivity.tsv
+	output_file=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}${task}${run}_desc-connectivity.tsv
 
 	# Transform Cifti File into volume space
 	input_nii=${WORKDIR}/input.nii.gz
@@ -122,7 +122,7 @@ for task_dir in ${task_directories}; do
 		-to-text ${connectivity} ${output_file}
 
 	# Move cleaned data into output
-	output_cleaned=${OUTPUT_DIR}/${SUBJECT_NAME}${ses}${task}${run}_desc-cleaned_bold.dtseries.nii
+	output_cleaned=${OUTPUT_DIR}/${SUBJECT_NAME}_${ses}${task}${run}_desc-cleaned_bold.dtseries.nii
 	cp -r ${cleaned_dtseries} ${output_cleaned}
 done
 
