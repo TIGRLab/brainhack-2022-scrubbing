@@ -109,7 +109,7 @@ def main():
     n_scans = len(all_FD)
 
     # Generate the censor_mask
-    if motion_outlier_index:
+    if motion_outlier_index.any():
         censor_mask = _optimize_scrub(motion_outlier_index, n_scans,
                                       args.scrubs)
     else:

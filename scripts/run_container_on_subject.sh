@@ -50,6 +50,7 @@ singularity run \
 	-B ${CLEAN_CONFIG}:/clean_config.json \
 	-B ${subject_outdir}:/output \
 	-B ${subject_workdir}:/work \
+	-B /projects/jjeyachandra/brainhack-project-2022/scripts:/scripts \
 	$SIMG \
 	/scripts/clean_subject_data \
 		${SUBJECT_NAME} \
